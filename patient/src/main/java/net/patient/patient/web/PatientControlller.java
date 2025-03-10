@@ -34,5 +34,9 @@ public class PatientControlller {
         return "redirect:/index";
     }
 
+    public String formPatients(){
+        return "formPatients";
+    }
+
 
 }
