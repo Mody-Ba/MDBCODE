@@ -10,7 +10,13 @@
 </head>
 <body>
 <div layout:fragment="content1"  class="container mt-4" style="max-width: 600px;">
-    <form method="post" th:action="@{/save}">
+    <form method="post" th:action="@{save(page=${page},Keyword=${Keyword})}">
+        <div >
+            <label>ID</label>
+            <label th:text="${patient.id}"></label>
+            <input class="form-control" type="hidden" name="id" th:value="${patient.id}">
+
+        </div>
         <div >
             <label>Nom</label>
             <input class="form-control" type="text" name="nom" th:value="${patient.nom}">
@@ -19,7 +25,9 @@
 
         <div>
             <label>DateNaissance</label>
-            <input class="form-control" type="date" name="dateNaissance" th:value="${patient.dateNaissance}">
+            <input class="form-control" type="date" name="dateNaissance"
+                   th:value="${#dates.format(patient.dateNaissance, 'yyyy-MM-dd')}">
+
             <span class="text-danger" th:errors="${patient.dateNaissance}"></span>
         </div>
         <div>

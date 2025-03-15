@@ -18,7 +18,7 @@ public class PatientApplication {
 	}
 
 
-	@Bean
+	//@Bean
 	public CommandLineRunner start(PatientRepository patientRepository){
 		return args -> {
 			//sauvegarder les patient dans la base de donne

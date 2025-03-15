@@ -1,5 +1,6 @@
 package net.patient.patient.web;
 
+import jakarta.validation.Valid;
 import net.patient.patient.entite.Patient;
 import net.patient.patient.repository.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.querydsl.QPageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -33,9 +36,29 @@ public class PatientControlller {
         patientRepository.deleteById(id);
         return "redirect:/index";
     }
-
-    public String formPatients(){
+    @GetMapping("/formPatients")
+    public String formPatients(Model model){
+        model.addAttribute("patient",new Patient());
         return "formPatients";
+    }
+    @PostMapping(path="/save")
+    public String save(Model model, @Valid Patient patient, BindingResult bindingResult,
+                       @RequestParam(defaultValue = "0") int page,
+                       @RequestParam(defaultValue = "") String Keyword){
+        if(bindingResult.hasErrors()) return "formPatients";
+        //enregistrer le patient dans la base de donne
+     patientRepository.save(patient);
+     return "redirect:/index?page="+page+"&Keyword="+Keyword;
+    }
+
+    @GetMapping("/editPatient")
+    public String editPatients(Model model , Long id,String Keyword, int page){
+        Patient patient = patientRepository.findById(id).orElse(null);
+        if(patient==null) throw new RuntimeException("Patient introuvable");
+        model.addAttribute("patient",patient);
+        model.addAttribute("page",page);
+        model.addAttribute("kayword",Keyword);
+        return "editPatient";
     }
 
 
