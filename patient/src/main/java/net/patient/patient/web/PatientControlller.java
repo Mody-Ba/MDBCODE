@@ -20,7 +20,7 @@ import java.util.List;
 public class PatientControlller {
     @Autowired
     PatientRepository patientRepository;
-    @GetMapping("/index")
+    @GetMapping("/user/index")
     public String index(Model model , @RequestParam(name= "page",defaultValue = "0") int page ,
                         @RequestParam(name= "size",defaultValue = "5") int size,
                         @RequestParam(name= "keyword",defaultValue = "") String keyword){
@@ -31,27 +31,38 @@ public class PatientControlller {
         model.addAttribute("kayword",keyword);
         return "patients";
     }
-    @GetMapping("/deletePatient")
-    public String delete(@RequestParam(name="id") Long id){
+    @GetMapping("/admin/deletePatient")
+    public String deletePatient(@RequestParam(name = "id") Long id,
+                                @RequestParam(name = "keyword", required = false, defaultValue = "") String keyword,
+                                @RequestParam(name = "page", required = false, defaultValue = "0") int page) {
+        // Vérifier si le patient existe avant de le supprimer
+        if (!patientRepository.existsById(id)) {
+            throw new RuntimeException("Patient non trouvé avec l'ID : " + id);
+        }
+
+        // Suppression du patient
         patientRepository.deleteById(id);
-        return "redirect:/index";
+
+        // Redirection vers la liste des patients avec la pagination et le mot-clé conservé
+        return "redirect:/user/index?page=" + page + "&keyword=" + keyword;
     }
-    @GetMapping("/formPatients")
+
+    @GetMapping("/admin/formPatients")
     public String formPatients(Model model){
         model.addAttribute("patient",new Patient());
         return "formPatients";
     }
-    @PostMapping(path="/save")
+    @PostMapping(path="/admin/save")
     public String save(Model model, @Valid Patient patient, BindingResult bindingResult,
                        @RequestParam(defaultValue = "0") int page,
                        @RequestParam(defaultValue = "") String Keyword){
         if(bindingResult.hasErrors()) return "formPatients";
         //enregistrer le patient dans la base de donne
      patientRepository.save(patient);
-     return "redirect:/index?page="+page+"&Keyword="+Keyword;
+     return "formPatients";
     }
 
-    @GetMapping("/editPatient")
+    @GetMapping("/admin/editPatient")
     public String editPatients(Model model , Long id,String Keyword, int page){
         Patient patient = patientRepository.findById(id).orElse(null);
         if(patient==null) throw new RuntimeException("Patient introuvable");
@@ -59,6 +70,10 @@ public class PatientControlller {
         model.addAttribute("page",page);
         model.addAttribute("kayword",Keyword);
         return "editPatient";
+    }
+    @GetMapping("/")
+    public String home(){
+        return "redirect:/user/index";
     }
 
 
